@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Users, 
+import {
+  Users,
   ShieldCheck,
   RefreshCw,
   Save,
@@ -14,7 +14,8 @@ import {
   Edit,
   Glasses,
   GraduationCap,
-  BookOpen
+  BookOpen,
+  DollarSign
 } from 'lucide-react';
 import { supabase } from '@/src/lib/supabase';
 import storage from '@/src/utilies/storage';
@@ -49,7 +50,7 @@ const ALL_MENU_ITEMS: MenuItem[] = [
     path: '/turmas',
     label: 'Turmas',
     icon: GraduationCap,
-     subPath: [
+    subPath: [
       { id: 'presence', path: '/presence', label: 'Presença' },
       { id: 'lancarnota', path: '/lancarnota', label: 'Lançar Nota' },
       { id: 'boletim', path: '/boletim', label: 'Boletim' }
@@ -61,11 +62,17 @@ const ALL_MENU_ITEMS: MenuItem[] = [
     label: 'Colaboradores',
     icon: Users,
   },
-   {
+  {
     id: 'disciplinas',
     path: '/disciplinas',
     label: 'Disciplinas',
     icon: BookOpen,
+  },
+  {
+    id: 'mensalidades',
+    path: '/mensalidades',
+    label: 'Mensalidades',
+    icon: DollarSign,
   },
   {
     id: 'editorpermissions',
@@ -90,7 +97,7 @@ export default function EditorSidebar() {
   // Estados dos Modais de Controle do CRUD
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  
+
   // Dados do formulário para Criar/Editar
   const [selectedRole, setSelectedRole] = useState<string | null>(null); // Nulo indica "Criando Novo"
   const [formRoleName, setFormRoleName] = useState('');
@@ -115,7 +122,7 @@ export default function EditorSidebar() {
         .select('role_name, allowed_menu_ids, allowed_submenu_ids')
         .neq('role_name', 'Owner')
         .eq('user_id', collab?.user_id)
-      
+
       if (error) throw error;
 
       if (data && data.length > 0) {
@@ -127,7 +134,7 @@ export default function EditorSidebar() {
           };
         });
         setRolePermissions(mapped);
-      } 
+      }
     } catch (err) {
       console.error("Erro na carga inicial das permissões:", err);
     } finally {
@@ -156,15 +163,15 @@ export default function EditorSidebar() {
 
   //buscar userID
   const [collabId, setCollabId] = useState(null)
-  useEffect(()=> {
-    const fetchCollabId = async() => {
+  useEffect(() => {
+    const fetchCollabId = async () => {
       const colaborador = await storage.getCollaborator()
-      if (colaborador){
+      if (colaborador) {
         setCollabId(colaborador?.user_id)
       }
     }
     fetchCollabId()
-  },[])
+  }, [])
   // Salvar no Banco (C / U do CRUD)
   const handleSaveRole = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -197,9 +204,9 @@ export default function EditorSidebar() {
       }
 
       showToast(
-        selectedRole 
-          ? `Cargo "${formRoleName}" atualizado com sucesso!` 
-          : `Cargo "${formRoleName}" criado com sucesso!`, 
+        selectedRole
+          ? `Cargo "${formRoleName}" atualizado com sucesso!`
+          : `Cargo "${formRoleName}" criado com sucesso!`,
         'success'
       );
 
@@ -232,7 +239,7 @@ export default function EditorSidebar() {
       if (error) throw error;
 
       showToast(`Cargo "${roleToDelete}" excluído com sucesso!`, 'success');
-      
+
       // Se o usuário atual estava testando o cargo excluído, volta para "Owner"
       if (userRole === roleToDelete) {
         setUserRole('Owner');
@@ -283,16 +290,15 @@ export default function EditorSidebar() {
 
   return (
     <div className="h-screen bg-slate-50 flex flex-col md:flex-row font-sans">
-     
+
 
       {/* CONTEÚDO DO CRUD */}
       <main className="flex-1 p-4 md:p-8 overflow-y-auto">
-        
+
         {/* TOAST NOTIFICAÇÕES */}
         {toast && (
-          <div className={`fixed top-4 right-4 z-50 p-4 rounded-xl shadow-xl border text-white transition-all flex items-center gap-3 ${
-            toast.type === 'success' ? 'bg-emerald-600 border-emerald-500 animate-slide-in' : 'bg-rose-600 border-rose-500 animate-slide-in'
-          }`}>
+          <div className={`fixed top-4 right-4 z-50 p-4 rounded-xl shadow-xl border text-white transition-all flex items-center gap-3 ${toast.type === 'success' ? 'bg-emerald-600 border-emerald-500 animate-slide-in' : 'bg-rose-600 border-rose-500 animate-slide-in'
+            }`}>
             <span className="font-semibold text-sm">{toast.message}</span>
           </div>
         )}
@@ -302,7 +308,7 @@ export default function EditorSidebar() {
           <div>
             <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
               <ShieldCheck className="w-8 h-8 text-blue-600" />
-            Permissões de Cargo
+              Permissões de Cargo
             </h1>
             <p className="text-slate-500 text-sm mt-1">
               Crie, liste, edite e remova privilégios de acesso do menu lateral.
@@ -312,118 +318,118 @@ export default function EditorSidebar() {
         </div>
 
         {/* VIEW 1: PAINEL CRUD */}
-        
+
         <div className="space-y-6">
-            
-            {/* BARRA DE AÇÕES */}
-            <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-              <div className="flex items-center gap-2">
-                <span className="bg-blue-50 text-blue-700 text-xs font-semibold px-2.5 py-1 rounded-full">
-                  {activeRoles.length} Cargos Registrados
-                </span>
-              </div>
-              <button
-                onClick={handleOpenCreate}
-                className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl transition-all shadow-sm hover:shadow-md"
-              >
-                <Plus className="w-4 h-4" />
-                Adicionar Novo Cargo
-              </button>
+
+          {/* BARRA DE AÇÕES */}
+          <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div className="flex items-center gap-2">
+              <span className="bg-blue-50 text-blue-700 text-xs font-semibold px-2.5 py-1 rounded-full">
+                {activeRoles.length} Cargos Registrados
+              </span>
             </div>
+            <button
+              onClick={handleOpenCreate}
+              className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl transition-all shadow-sm hover:shadow-md"
+            >
+              <Plus className="w-4 h-4" />
+              Adicionar Novo Cargo
+            </button>
+          </div>
 
-            {loading ? (
-              <div className="flex flex-col items-center justify-center p-20 bg-white rounded-2xl border border-slate-200 shadow-sm">
-                <RefreshCw className="w-8 h-8 text-blue-600 animate-spin mb-3" />
-                <span className="text-slate-500 text-sm font-bold">Carregando dados das rotas...</span>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {activeRoles.map((role) => {
-                  const perms = rolePermissions[role] || { allowed_menus: [], allowed_submenus: [] };
-                  const menusCount = perms.allowed_menus.length;
-                  const submenusCount = perms.allowed_submenus.length;
+          {loading ? (
+            <div className="flex flex-col items-center justify-center p-20 bg-white rounded-2xl border border-slate-200 shadow-sm">
+              <RefreshCw className="w-8 h-8 text-blue-600 animate-spin mb-3" />
+              <span className="text-slate-500 text-sm font-bold">Carregando dados das rotas...</span>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {activeRoles.map((role) => {
+                const perms = rolePermissions[role] || { allowed_menus: [], allowed_submenus: [] };
+                const menusCount = perms.allowed_menus.length;
+                const submenusCount = perms.allowed_submenus.length;
 
-                  return (
-                    <div 
-                      key={role} 
-                      className="bg-white rounded-2xl border border-slate-200 hover:border-blue-200 hover:shadow-md transition-all duration-300 p-5 flex flex-col justify-between"
-                    >
-                      <div>
-                        {/* Nome do cargo e badge */}
-                        <div className="flex items-start justify-between gap-2 mb-3">
-                          <h3 className="text-lg font-semibold text-slate-800 tracking-tight truncate">{role}</h3>
-                          <span className="bg-slate-100 text-slate-600 text-sm font-mono px-2 py-0.5 rounded border border-slate-200 shrink-0">
-                            ID: {role.toLowerCase()}
-                          </span>
+                return (
+                  <div
+                    key={role}
+                    className="bg-white rounded-2xl border border-slate-200 hover:border-blue-200 hover:shadow-md transition-all duration-300 p-5 flex flex-col justify-between"
+                  >
+                    <div>
+                      {/* Nome do cargo e badge */}
+                      <div className="flex items-start justify-between gap-2 mb-3">
+                        <h3 className="text-lg font-semibold text-slate-800 tracking-tight truncate">{role}</h3>
+                        <span className="bg-slate-100 text-slate-600 text-sm font-mono px-2 py-0.5 rounded border border-slate-200 shrink-0">
+                          ID: {role.toLowerCase()}
+                        </span>
+                      </div>
+
+                      {/* Estatísticas de acesso */}
+                      <div className="grid grid-cols-2 gap-2 mb-4 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                        <div className="text-center">
+                          <span className="text-sm text-slate-600 font-bold  block">Menus Pais</span>
+                          <span className="text-base font-bold text-blue-600">{menusCount}</span>
                         </div>
-
-                        {/* Estatísticas de acesso */}
-                        <div className="grid grid-cols-2 gap-2 mb-4 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                          <div className="text-center">
-                            <span className="text-sm text-slate-600 font-bold  block">Menus Pais</span>
-                            <span className="text-base font-bold text-blue-600">{menusCount}</span>
-                          </div>
-                          <div className="text-center border-l border-slate-200">
-                            <span className="text-sm text-slate-600 font-bold  block">Submenus</span>
-                            <span className="text-base font-bold text-indigo-600">{submenusCount}</span>
-                          </div>
-                        </div>
-
-                        {/* Resumo visual dos ícones ativos */}
-                        <div className="mb-6">
-                          <span className="text-sm font-bold text-slate-600  block mb-1.5">Menus Visíveis:</span>
-                          <div className="flex flex-wrap gap-1.5">
-                            {ALL_MENU_ITEMS.map((item) => {
-                              const isAllowed = perms.allowed_menus.includes(item.id);
-                              if (!isAllowed) return null;
-                              return (
-                                <div 
-                                  key={item.id} 
-                                  className="bg-blue-50 text-blue-700 p-1 rounded border border-blue-100" 
-                                  title={item.label}
-                                >
-                                  <item.icon className="w-3.5 h-3.5" />
-                                </div>
-                              );
-                            })}
-                            {menusCount === 0 && (
-                              <span className="text-xs text-rose-500 font-medium">Sem nenhuma tela habilitada</span>
-                            )}
-                          </div>
+                        <div className="text-center border-l border-slate-200">
+                          <span className="text-sm text-slate-600 font-bold  block">Submenus</span>
+                          <span className="text-base font-bold text-indigo-600">{submenusCount}</span>
                         </div>
                       </div>
 
-                      {/* Botões de Ação do CRUD */}
-                      <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-2">
-                        <button
-                          onClick={() => handleOpenEdit(role)}
-                          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-700 hover:text-blue-700 bg-slate-50 hover:bg-blue-50 rounded-xl border border-slate-200 hover:border-blue-200 transition-all"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" />
-                          Editar Cargo
-                        </button>
-                        <button
-                          disabled={role === 'Owner'}
-                          onClick={() => handleOpenDelete(role)}
-                          className="flex items-center justify-center p-2 text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-slate-100 hover:border-rose-100 rounded-xl transition-all"
-                          title="Excluir Cargo"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                      {/* Resumo visual dos ícones ativos */}
+                      <div className="mb-6">
+                        <span className="text-sm font-bold text-slate-600  block mb-1.5">Menus Visíveis:</span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {ALL_MENU_ITEMS.map((item) => {
+                            const isAllowed = perms.allowed_menus.includes(item.id);
+                            if (!isAllowed) return null;
+                            return (
+                              <div
+                                key={item.id}
+                                className="bg-blue-50 text-blue-700 p-1 rounded border border-blue-100"
+                                title={item.label}
+                              >
+                                <item.icon className="w-3.5 h-3.5" />
+                              </div>
+                            );
+                          })}
+                          {menusCount === 0 && (
+                            <span className="text-xs text-rose-500 font-medium">Sem nenhuma tela habilitada</span>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        
+
+                    {/* Botões de Ação do CRUD */}
+                    <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-2">
+                      <button
+                        onClick={() => handleOpenEdit(role)}
+                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-700 hover:text-blue-700 bg-slate-50 hover:bg-blue-50 rounded-xl border border-slate-200 hover:border-blue-200 transition-all"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                        Editar Cargo
+                      </button>
+                      <button
+                        disabled={role === 'Owner'}
+                        onClick={() => handleOpenDelete(role)}
+                        className="flex items-center justify-center p-2 text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-slate-100 hover:border-rose-100 rounded-xl transition-all"
+                        title="Excluir Cargo"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
 
 
         {/* MODAL 1: FORMULÁRIO CRIAR / EDITAR CARGO */}
         {isFormModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-            <form 
+            <form
               onSubmit={handleSaveRole}
               className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-zoom-in"
             >
@@ -435,8 +441,8 @@ export default function EditorSidebar() {
                     {selectedRole ? `Editar Cargo: ${selectedRole}` : 'Adicionar Novo Cargo'}
                   </h3>
                 </div>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={() => setIsFormModalOpen(false)}
                   className="p-1 rounded-lg hover:bg-slate-200 text-slate-600 hover:text-slate-700 transition-colors"
                 >
@@ -472,15 +478,14 @@ export default function EditorSidebar() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {ALL_MENU_ITEMS.map((item) => {
                       const isMenuAllowed = formAllowedMenus.includes(item.id);
-                      
+
                       return (
-                        <div 
-                          key={item.id} 
-                          className={`p-4 rounded-xl border transition-all ${
-                            isMenuAllowed 
-                              ? 'bg-blue-50/40 border-blue-200' 
-                              : 'bg-slate-50/50 border-slate-200 opacity-80 hover:opacity-100'
-                          }`}
+                        <div
+                          key={item.id}
+                          className={`p-4 rounded-xl border transition-all ${isMenuAllowed
+                            ? 'bg-blue-50/40 border-blue-200'
+                            : 'bg-slate-50/50 border-slate-200 opacity-80 hover:opacity-100'
+                            }`}
                         >
                           {/* Menu Principal */}
                           <label className="flex items-center gap-3 cursor-pointer select-none">

@@ -15,11 +15,12 @@ import EditorSidebar from './components/Layout/SidebarEditor';
 import Collaborators from './pages/collaborators/ManagerCollaborators';
 import ManagerProfessores from './pages/professores/ManagerProfessores';
 import ManagerTurmas from './pages/turmas/ManagerTurmas';
-import ManagerStudents  from './pages/alunos/ManagerAlunos';
+import ManagerStudents from './pages/alunos/ManagerAlunos';
 import Presence from './pages/turmas/Presence';
 import ManagerDisciplinas from './pages/disciplinas/ManagerDisciplinas';
 import GradeManagement from './pages/turmas/GradeManagement';
 import BoletimEscolar from './pages/turmas/Boletim';
+import Mensalidades from './pages/mensalidades/MensalidadesEscolares';
 
 export default function App() {
   const [session, setSession] = useState<any>(null);
@@ -53,7 +54,7 @@ export default function App() {
 
     return () => unsubscribe();
   }, []);
-  
+
   useEffect(() => {
 
     const checkUser = async (session) => {
@@ -70,43 +71,43 @@ export default function App() {
 
       // se não encontrou, cria
       if (error) {
-        const {error: errorD} = await supabase.from("users").insert({
+        const { error: errorD } = await supabase.from("users").insert({
           email: email,
           user_id: session.user.id
         });
-        const {error: errorCollaborador} = await supabase.from("collaborators").insert({
+        const { error: errorCollaborador } = await supabase.from("collaborators").insert({
           email: email,
           user_id: session.user.id,
-          role:'Owner',
-          role_id:'fab1a75c-64c9-4c99-a282-ada0404f9b56'
+          role: 'Owner',
+          role_id: 'fab1a75c-64c9-4c99-a282-ada0404f9b56'
         });
 
         if (errorCollaborador) console.error(errorCollaborador)
 
       } else {
-          const collaborator = await storage.getCollaborator()
-          if (collaborator) {
-            const permissionsData = await storage.getCollaboratorPermissions(collaborator.role)
-            setPermissions(permissionsData)
-          }
-          setCargo(collaborator)
-      } 
+        const collaborator = await storage.getCollaborator()
+        if (collaborator) {
+          const permissionsData = await storage.getCollaboratorPermissions(collaborator.role)
+          setPermissions(permissionsData)
+        }
+        setCargo(collaborator)
+      }
 
     };
     // sessão inicial
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setLoading(false);
-      
+
       if (session) {
         checkUser(session);
       }
     });
-    
+
     // listener de login/logout
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      
+
       if (session) {
         checkUser(session);
       }
@@ -115,14 +116,14 @@ export default function App() {
     return () => subscription.unsubscribe();
 
   }, []);
-   
-  useEffect(() => {
-      if (session) {
-        generateToken();
-      }
-    }, [session]);
 
-  
+  useEffect(() => {
+    if (session) {
+      generateToken();
+    }
+  }, [session]);
+
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -131,157 +132,170 @@ export default function App() {
     );
   }
 
- return (
-  <Routes>
-    <Route path="/reset-password" element={<ResetPassword />} />
-    {/* ROTAS PÚBLICAS */}
-    {!session && (
-      <>
-        <Route path="/" element={<Auth />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </>
-    )}
+  return (
+    <Routes>
+      <Route path="/reset-password" element={<ResetPassword />} />
+      {/* ROTAS PÚBLICAS */}
+      {!session && (
+        <>
+          <Route path="/" element={<Auth />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </>
+      )}
 
-    {/* ROTAS PRIVADAS */}
-    {session && (
-      <Route
-        path="/*"
-        element={
-          <div className="flex min-h-screen bg-slate-50 md:flex-row flex-col">
-            <div className="no-printer">
-              <Sidebar
-                userEmail={session.user.email}
-                cargo={cargo}
-                permissions={permissions}
-              />
-            </div>  
-            <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
-              <Routes>
-                <Route path="/" element={<Navigate to="/lobby" replace />} />
+      {/* ROTAS PRIVADAS */}
+      {session && (
+        <Route
+          path="/*"
+          element={
+            <div className="flex min-h-screen bg-slate-50 md:flex-row flex-col">
+              <div className="no-printer">
+                <Sidebar
+                  userEmail={session.user.email}
+                  cargo={cargo}
+                  permissions={permissions}
+                />
+              </div>
+              <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
+                <Routes>
+                  <Route path="/" element={<Navigate to="/lobby" replace />} />
 
 
-                {/**Professores */}
-                <Route
-                  path="/professores"
-                  element={
-                    <ProtectedRoute
-                      permission="geral"
-                      permissions={permissions}
-                    >
-                      <ManagerProfessores />
-                    </ProtectedRoute>
-                  }
-                />
+                  {/**Professores */}
+                  <Route
+                    path="/professores"
+                    element={
+                      <ProtectedRoute
+                        permission="geral"
+                        permissions={permissions}
+                      >
+                        <ManagerProfessores />
+                      </ProtectedRoute>
+                    }
+                  />
 
-                {/**turmas */}
-                <Route
-                  path="/turmas"
-                  element={
-                    <ProtectedRoute
-                      permission="geral"
-                      permissions={permissions}
-                    >
-                      <ManagerTurmas />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/lancarnota"
-                  element={
-                    <ProtectedRoute
-                      permission="geral"
-                      permissions={permissions}
-                    >
-                      <GradeManagement />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/boletim"
-                  element={
-                    <ProtectedRoute
-                      permission="geral"
-                      permissions={permissions}
-                    >
-                      <BoletimEscolar />
-                    </ProtectedRoute>
-                  }
-                />
+                  {/**turmas */}
+                  <Route
+                    path="/turmas"
+                    element={
+                      <ProtectedRoute
+                        permission="geral"
+                        permissions={permissions}
+                      >
+                        <ManagerTurmas />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/lancarnota"
+                    element={
+                      <ProtectedRoute
+                        permission="geral"
+                        permissions={permissions}
+                      >
+                        <GradeManagement />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/boletim"
+                    element={
+                      <ProtectedRoute
+                        permission="geral"
+                        permissions={permissions}
+                      >
+                        <BoletimEscolar />
+                      </ProtectedRoute>
+                    }
+                  />
 
-                
-                {/**presença */}
-                <Route
-                  path="/presence"
-                  element={
-                    <ProtectedRoute
-                      permission="geral"
-                      permissions={permissions}
-                    >
-                      <Presence />
-                    </ProtectedRoute>
-                  }
-                />
-                {/**Disciplinas */}
-                <Route
-                  path="/disciplinas"
-                  element={
-                    <ProtectedRoute
-                      permission="geral"
-                      permissions={permissions}
-                    >
-                      <ManagerDisciplinas />
-                    </ProtectedRoute>
-                  }
-                />
-                {/**Alunos */}
-                <Route
-                  path="/alunos"
-                  element={
-                    <ProtectedRoute
-                      permission="geral"
-                      permissions={permissions}
-                    >
-                      <ManagerStudents/>
-                    </ProtectedRoute>
-                  }
-                />
+                  {/**financeiro */}
+                  <Route
+                    path="/mensalidades"
+                    element={
+                      <ProtectedRoute
+                        permission="geral"
+                        permissions={permissions}
+                      >
+                        <Mensalidades />
+                      </ProtectedRoute>
+                    }
+                  />
 
-                {/**permissions */}
-                <Route
-                  path="/editorpermissions"
-                  element={
-                    <ProtectedRoute
-                      permission="geral"
-                      permissions={permissions}
-                    >
-                      <EditorSidebar />
-                    </ProtectedRoute>
-                  }
-                />
 
-                {/**colaboradores */}
-                <Route
-                  path="/collaborators"
-                  element={
-                    <ProtectedRoute
-                      permission="geral"
-                      permissions={permissions}
-                    >
-                      <Collaborators />
-                    </ProtectedRoute>
-                  }
-                />
+                  {/**presença */}
+                  <Route
+                    path="/presence"
+                    element={
+                      <ProtectedRoute
+                        permission="geral"
+                        permissions={permissions}
+                      >
+                        <Presence />
+                      </ProtectedRoute>
+                    }
+                  />
+                  {/**Disciplinas */}
+                  <Route
+                    path="/disciplinas"
+                    element={
+                      <ProtectedRoute
+                        permission="geral"
+                        permissions={permissions}
+                      >
+                        <ManagerDisciplinas />
+                      </ProtectedRoute>
+                    }
+                  />
+                  {/**Alunos */}
+                  <Route
+                    path="/alunos"
+                    element={
+                      <ProtectedRoute
+                        permission="geral"
+                        permissions={permissions}
+                      >
+                        <ManagerStudents />
+                      </ProtectedRoute>
+                    }
+                  />
 
-                <Route path="*" element={<Navigate to="/lobby" replace />} />
+                  {/**permissions */}
+                  <Route
+                    path="/editorpermissions"
+                    element={
+                      <ProtectedRoute
+                        permission="geral"
+                        permissions={permissions}
+                      >
+                        <EditorSidebar />
+                      </ProtectedRoute>
+                    }
+                  />
 
-              </Routes>
-            </main>
-          </div>
-        }
-      />
-    )}
-  </Routes>
-);
+                  {/**colaboradores */}
+                  <Route
+                    path="/collaborators"
+                    element={
+                      <ProtectedRoute
+                        permission="geral"
+                        permissions={permissions}
+                      >
+                        <Collaborators />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  <Route path="*" element={<Navigate to="/lobby" replace />} />
+
+                </Routes>
+              </main>
+            </div>
+          }
+        />
+      )}
+    </Routes>
+  );
 }
 
 function ProtectedRoute({

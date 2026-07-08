@@ -1,55 +1,55 @@
-  import React, { useEffect, useState } from 'react';
-  import { Link, NavLink } from 'react-router-dom';
-  import { supabase } from '../../lib/supabase';
-  import { 
-    LayoutDashboard, 
-    Users, 
-    Settings, 
-    LogOut, 
-    ChevronLeft, 
-    Menu,
-    Package,
-    History,
-    ChartBarBig,
-    Hammer,
-    Album,
-    Users2,
-    Handshake,
-    Wallet,
-    DollarSign,
-    Zap,
-    Smile,
-    HeartPulse,
-    HandPlatter,
-    Bot,
-    ShieldCheck,
-    Edit,
-    Glasses,
-    GraduationCap,
-    BookOpen
-  } from 'lucide-react';
-  import { clsx, type ClassValue } from 'clsx';
-  import { twMerge } from 'tailwind-merge';
-  import { useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, NavLink } from 'react-router-dom';
+import { supabase } from '../../lib/supabase';
+import {
+  LayoutDashboard,
+  Users,
+  Settings,
+  LogOut,
+  ChevronLeft,
+  Menu,
+  Package,
+  History,
+  ChartBarBig,
+  Hammer,
+  Album,
+  Users2,
+  Handshake,
+  Wallet,
+  DollarSign,
+  Zap,
+  Smile,
+  HeartPulse,
+  HandPlatter,
+  Bot,
+  ShieldCheck,
+  Edit,
+  Glasses,
+  GraduationCap,
+  BookOpen
+} from 'lucide-react';
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+import { useLocation } from 'react-router-dom';
 
 
 
-  function cn(...inputs: ClassValue[]) {
-    return twMerge(clsx(inputs));
-  }
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 
-  interface SidebarProps {
-    userEmail: string | undefined;
-    cargo:object;
-  }
+interface SidebarProps {
+  userEmail: string | undefined;
+  cargo: object;
+}
 
 
 
-  export default function Sidebar({ userEmail,cargo }: SidebarProps) {
-    const [isCollapsed, setIsCollapsed] = useState(false);
-    const [isMobileOpen, setIsMobileOpen] = useState(false); // mobile
-    const [permissions, setPermissions] = useState(null);
-    const location = useLocation();
+export default function Sidebar({ userEmail, cargo }: SidebarProps) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false); // mobile
+  const [permissions, setPermissions] = useState(null);
+  const location = useLocation();
 
 
   useEffect(() => {
@@ -74,7 +74,7 @@
   };
 
 
-    const menuItems = [
+  const menuItems = [
     {
       id: 'professores',
       path: '/professores',
@@ -92,21 +92,21 @@
       path: '/turmas',
       label: 'Turmas',
       icon: GraduationCap,
-       subPath: [
-        { 
-          id: 'presence', 
-          path: '/presence', 
+      subPath: [
+        {
+          id: 'presence',
+          path: '/presence',
           label: 'Presença',
         },
-        { 
-          id: 'lancarnota', 
-          path: '/lancarnota', 
+        {
+          id: 'lancarnota',
+          path: '/lancarnota',
           label: 'Lançar Nota',
         }
         ,
-        { 
-          id: 'boletim', 
-          path: '/boletim', 
+        {
+          id: 'boletim',
+          path: '/boletim',
           label: 'Boletim',
         }
       ]
@@ -118,32 +118,39 @@
       icon: Users,
     },
     {
+      id: 'mensalidades',
+      path: '/mensalidades',
+      label: 'Mensalidades',
+      icon: DollarSign,
+      subPath: []
+    },
+    {
       id: 'collaborators',
       path: '/collaborators',
       label: 'Colaboradores',
       icon: Handshake,
     },
-     {
+    {
       id: 'editorpermissions',
       path: '/editorpermissions',
       label: 'Configurações',
       icon: Settings,
       subPath: [
-        { 
-          id: 'editorpermissions', 
-          path: '/editorpermissions', 
+        {
+          id: 'editorpermissions',
+          path: '/editorpermissions',
           label: 'Editor Sidebar',
         }
       ]
     }
-    
-  
-    ];
 
-    const handleLogout = async () => {
-      await supabase.auth.signOut();
-    };
-    const isMenuActive = (item) => {
+
+  ];
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+  };
+  const isMenuActive = (item) => {
     if (location.pathname.startsWith(item.path)) return true;
 
     if (item.subPath) {
@@ -161,9 +168,9 @@
   const filteredMenuItems = isOwner
     ? menuItems
     : menuItems.filter(item =>
-        permissions?.allowed_menu_ids?.includes(item.id)
-      );
-    return (
+      permissions?.allowed_menu_ids?.includes(item.id)
+    );
+  return (
     <>
       {/* BOTÃO MOBILE FIXO */}
       <button
@@ -199,15 +206,15 @@
           {!isCollapsed && (
             <div className="flex items-center gap-2">
               <div className="bg-blue-600 p-1.5 rounded-md">
-                <Link 
-                to="/lobby">
+                <Link
+                  to="/lobby">
                   <HeartPulse className="w-5 h-5 text-white" />
                 </Link>
               </div>
               <span className="font-bold text-slate-900 truncate">CRM</span>
             </div>
           )}
-          <button 
+          <button
             onClick={() => setIsCollapsed(!isCollapsed)}
             className="p-1.5 hidden md:block hover:bg-slate-100 rounded-md text-slate-500 transition-colors mx-auto"
           >
@@ -243,39 +250,39 @@
                       {item.label}
                     </span>
                   )}
-        </NavLink>
-
-        {/* Renderizar submenus */}
-        {!isCollapsed && item.subPath && isActive && (
-          <div className="ml-8 mt-1 space-y-1">
-            {item.subPath
-            .filter(sub =>
-              isOwner ||
-              permissions?.allowed_submenu_ids?.includes(sub.id)
-            )
-            .map((sub) => {
-              const isSubActive = location.pathname.startsWith(sub.path);
-
-              return (
-                <NavLink
-                  key={sub.id}
-                  to={sub.path}
-                  className={cn(
-                    "block text-sm px-2 py-1 rounded-md transition-colors",
-                    isSubActive
-                      ? "text-blue-600"
-                      : "text-slate-500 hover:text-slate-800"
-                  )}
-                >
-                  {sub.label}
                 </NavLink>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    );
-  })}
+
+                {/* Renderizar submenus */}
+                {!isCollapsed && item.subPath && isActive && (
+                  <div className="ml-8 mt-1 space-y-1">
+                    {item.subPath
+                      .filter(sub =>
+                        isOwner ||
+                        permissions?.allowed_submenu_ids?.includes(sub.id)
+                      )
+                      .map((sub) => {
+                        const isSubActive = location.pathname.startsWith(sub.path);
+
+                        return (
+                          <NavLink
+                            key={sub.id}
+                            to={sub.path}
+                            className={cn(
+                              "block text-sm px-2 py-1 rounded-md transition-colors",
+                              isSubActive
+                                ? "text-blue-600"
+                                : "text-slate-500 hover:text-slate-800"
+                            )}
+                          >
+                            {sub.label}
+                          </NavLink>
+                        );
+                      })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </nav>
 
         <div className="p-2 border-t border-slate-200">
@@ -286,7 +293,7 @@
             )}
           >
             <div className="flex items-center gap-3 min-w-0">
-              
+
 
               {!isCollapsed && (
                 <div className="text-left min-w-0">
@@ -309,7 +316,7 @@
           </button>
         </div>
       </aside>
-      <Menu className="md:hidden m-4 "/>
-      </>
-    );
-  }
+      <Menu className="md:hidden m-4 " />
+    </>
+  );
+}
