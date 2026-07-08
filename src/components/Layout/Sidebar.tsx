@@ -25,7 +25,8 @@
     ShieldCheck,
     Edit,
     Glasses,
-    GraduationCap
+    GraduationCap,
+    BookOpen
   } from 'lucide-react';
   import { clsx, type ClassValue } from 'clsx';
   import { twMerge } from 'tailwind-merge';
@@ -81,6 +82,12 @@
       icon: Glasses,
     },
     {
+      id: 'disciplinas',
+      path: '/disciplinas',
+      label: 'Disciplinas',
+      icon: BookOpen,
+    },
+    {
       id: 'turmas',
       path: '/turmas',
       label: 'Turmas',
@@ -90,6 +97,17 @@
           id: 'presence', 
           path: '/presence', 
           label: 'Presença',
+        },
+        { 
+          id: 'lancarnota', 
+          path: '/lancarnota', 
+          label: 'Lançar Nota',
+        }
+        ,
+        { 
+          id: 'boletim', 
+          path: '/boletim', 
+          label: 'Boletim',
         }
       ]
     },

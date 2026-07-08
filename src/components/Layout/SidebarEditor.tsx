@@ -13,7 +13,8 @@ import {
   Info,
   Edit,
   Glasses,
-  GraduationCap
+  GraduationCap,
+  BookOpen
 } from 'lucide-react';
 import { supabase } from '@/src/lib/supabase';
 import storage from '@/src/utilies/storage';
@@ -49,7 +50,9 @@ const ALL_MENU_ITEMS: MenuItem[] = [
     label: 'Turmas',
     icon: GraduationCap,
      subPath: [
-      { id: 'presence', path: '/presence', label: 'Presença' }
+      { id: 'presence', path: '/presence', label: 'Presença' },
+      { id: 'lancarnota', path: '/lancarnota', label: 'Lançar Nota' },
+      { id: 'boletim', path: '/boletim', label: 'Boletim' }
     ]
   },
   {
@@ -57,6 +60,12 @@ const ALL_MENU_ITEMS: MenuItem[] = [
     path: '/collaborators',
     label: 'Colaboradores',
     icon: Users,
+  },
+   {
+    id: 'disciplinas',
+    path: '/disciplinas',
+    label: 'Disciplinas',
+    icon: BookOpen,
   },
   {
     id: 'editorpermissions',

@@ -17,6 +17,9 @@ import ManagerProfessores from './pages/professores/ManagerProfessores';
 import ManagerTurmas from './pages/turmas/ManagerTurmas';
 import ManagerStudents  from './pages/alunos/ManagerAlunos';
 import Presence from './pages/turmas/Presence';
+import ManagerDisciplinas from './pages/disciplinas/ManagerDisciplinas';
+import GradeManagement from './pages/turmas/GradeManagement';
+import BoletimEscolar from './pages/turmas/Boletim';
 
 export default function App() {
   const [session, setSession] = useState<any>(null);
@@ -182,6 +185,30 @@ export default function App() {
                     </ProtectedRoute>
                   }
                 />
+                <Route
+                  path="/lancarnota"
+                  element={
+                    <ProtectedRoute
+                      permission="geral"
+                      permissions={permissions}
+                    >
+                      <GradeManagement />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/boletim"
+                  element={
+                    <ProtectedRoute
+                      permission="geral"
+                      permissions={permissions}
+                    >
+                      <BoletimEscolar />
+                    </ProtectedRoute>
+                  }
+                />
+
+                
                 {/**presença */}
                 <Route
                   path="/presence"
@@ -191,6 +218,18 @@ export default function App() {
                       permissions={permissions}
                     >
                       <Presence />
+                    </ProtectedRoute>
+                  }
+                />
+                {/**Disciplinas */}
+                <Route
+                  path="/disciplinas"
+                  element={
+                    <ProtectedRoute
+                      permission="geral"
+                      permissions={permissions}
+                    >
+                      <ManagerDisciplinas />
                     </ProtectedRoute>
                   }
                 />
